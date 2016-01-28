@@ -15,7 +15,7 @@
 <a name="step1"></a>
 ### Step 1: Get the code
 
-    npm install react-native-complex-user-register --save
+    npm install react-native-complex-user-register
 
 -----
 <a name="step2"></a>
@@ -44,7 +44,7 @@
     #index.android.js
 
     ...
-    import Login from './lib/react-native-complex-user-register';
+    import Example from './lib/react-native-complex-user-register/Example';
     ...
 
     class Name extends React.Component {

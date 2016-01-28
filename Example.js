@@ -7,7 +7,8 @@ import React, {
   View,
   TouchableHighlight,
   Text,
-  StyleSheet
+  StyleSheet,
+  BackAndroid
 } from 'react-native';
 
 import Login from './Login';
@@ -47,6 +48,16 @@ const style = StyleSheet.create({
     height: 60,
     backgroundColor: '#D6D2D2'
   }
+});
+
+let _navigator;
+
+BackAndroid.addEventListener('hardwareBackPress', () => {
+  if (_navigator.getCurrentRoutes().length === 1  ) {
+    return false;
+  }
+  _navigator.pop();
+  return true;
 });
 
 class Home extends Component {
@@ -95,6 +106,7 @@ export default class extends Component {
   }
 
   renderScene(route, navigator) {
+    _navigator = navigator;
     switch (route.name) {
       case 'login':
         return <Login navigator={navigator} />
