@@ -8,13 +8,15 @@ import React, {
   TextInput,
   TouchableHighlight,
   ToastAndroid,
-  AsyncStorage
+  AsyncStorage,
+  Navigator
 } from 'react-native';
 
 import style from './Style';
 import api, {host, key} from './Server';
+import Register from './Register';
 
-export default class extends Component {
+class Login extends Component {
   constructor(props) {
     super(props);
 
@@ -95,6 +97,34 @@ export default class extends Component {
       this.props.navigator.pop();
     } catch (error) {
       ToastAndroid.show(String(error).replace('Error: ',''), ToastAndroid.SHORT);
+    }
+  }
+}
+
+export default class extends Component {
+  constructor(props) {
+    super(props);
+  }
+
+  render() {
+    return (
+      <Navigator
+        initialRoute={{name:'login'}}
+        renderScene={this.renderScene.bind(this)}
+        configureScene={(route) => {
+          return route.sceneConfig ? route.sceneConfig : Navigator.SceneConfigs.HorizontalSwipeJump;
+        }}
+      />
+    );
+  }
+
+  renderScene(route, navigator) {
+    switch (route.name) {
+      case 'register':
+        return <Register navigator={navigator} />
+        break;
+      default:
+        return <Login navigator={navigator} />
     }
   }
 }

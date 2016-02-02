@@ -11,10 +11,10 @@ import React, {
   BackAndroid
 } from 'react-native';
 
-import Login from './Login';
-import Register from './Register';
-import Waiting from './Waiting';
-import Confirmation from './Confirmation';
+import Login from '../Login';
+import Register from '../Register';
+import Waiting from '../Waiting';
+import Confirmation from '../Confirmation';
 
 const style = StyleSheet.create({
   container: {
