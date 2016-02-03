@@ -6,7 +6,7 @@ import React, {
   Text
 } from 'react-native';
 
-import style from './Style';
+import styles from './Style';
 
 export default class extends Component {
   constructor(props) {
@@ -15,11 +15,11 @@ export default class extends Component {
 
   render() {
     return (
-      <View style={style.container}>
-        <Text style={style.instructions}>
+      <View style={styles.container}>
+        <Text style={styles.instructions}>
           Please wait a moment...
         </Text>
-        <Text style={style.instructions}>
+        <Text style={styles.instructions}>
           Currently, we are still process your registration.
         </Text>
       </View>

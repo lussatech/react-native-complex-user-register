@@ -12,7 +12,7 @@ import React, {
   Navigator
 } from 'react-native';
 
-import style from './Style';
+import styles from './Style';
 import api, {host, key} from './Server';
 import Register from './Register';
 
@@ -31,21 +31,26 @@ class Login extends Component {
   }
 
   render() {
+    let fields = [
+      {ref: 'email', placeholder: 'Email', keyboardType: 'email-address', secureTextEntry: false},
+      {ref: 'password', placeholder: 'Password', keyboardType: 'default', secureTextEntry: true},
+    ];
+
     return (
-      <ScrollView ref={'loginForm'}>
-        <Text style={style.title}>LOGIN</Text>
+      <ScrollView ref={'loginFormC'} {...this.props}>
+        <Text style={styles.title}>LOGIN</Text>
         <View key={'email'}>
-          <TextInput ref={'email'} placeholder={'Email'} keyboardType={'email-address'} secureTextEntry={false} onFocus={this.onFocus.bind(this, 'email')} onChangeText={(text) => this.state.data.email = text} value={this.state.data.email} />
+          <TextInput {...fields[0]} onFocus={() => this.onFocus({...fields[0]})} onChangeText={(text) => this.state.data.email = text} />
         </View>
         <View key={'password'}>
-          <TextInput ref={'password'} placeholder={'Password'} keyboardType={'default'} secureTextEntry={true} onFocus={this.onFocus.bind(this, 'password')} onChangeText={(text) => this.state.data.password = text} value={this.state.data.password} />
+          <TextInput {...fields[1]} onFocus={() => this.onFocus({...fields[1]})} onChangeText={(text) => this.state.data.password = text} />
         </View>
-        <TouchableHighlight style={style.button} onPress={this.onSubmit.bind(this)}>
-          <Text style={style.buttonText}>{this.state.loading ? 'Please Wait . . .' : 'Submit'}</Text>
+        <TouchableHighlight style={this.state.loading ? styles.buttonDisabled : styles.button} underlayColor={'#2bbbad'} onPress={() => this.onSubmit()}>
+          <Text style={styles.buttonText}>{this.state.loading ? 'Please Wait . . .' : 'Submit'}</Text>
         </TouchableHighlight>
-        <Text style={style.orText}>OR</Text>
-        <TouchableHighlight style={style.button} onPress={() => this.gotoRoute('register')}>
-          <Text style={style.buttonText}>{'Register as Seller'}</Text>
+        <Text style={styles.orText}>OR</Text>
+        <TouchableHighlight style={styles.button} underlayColor={'#2bbbad'} onPress={() => this.gotoRoute('register')}>
+          <Text style={styles.buttonText}>{'Register as Seller'}</Text>
         </TouchableHighlight>
       </ScrollView>
     );
@@ -53,9 +58,9 @@ class Login extends Component {
 
   onFocus(argument) {
     setTimeout(() => {
-      let scrollResponder = this.refs.loginForm.getScrollResponder();
+      let scrollResponder = this.refs.loginFormC.getScrollResponder();
           scrollResponder.scrollResponderScrollNativeHandleToKeyboard(
-            React.findNodeHandle(this.refs[argument]), 110, true
+            React.findNodeHandle(this.refs[argument.ref]), 110, true
           );
     }, 50);
   }
@@ -66,9 +71,15 @@ class Login extends Component {
       return;
     }
 
-    this.setState({
-      loading: true
+    let valid = true;
+
+    Object.keys(this.state.data).map((val, key) => {
+      if ([null, undefined, 'null', 'undefined', ''].indexOf(this.state.data[val]) > -1) valid = false;
     });
+
+    if (!valid) return null;
+
+    this.setState({loading: true});
 
     api.auth.login(this.state.data)
       .then((response) => {
@@ -77,13 +88,16 @@ class Login extends Component {
       })
       .then((responseData) => {
         console.log(responseData);
-        this.onSuccess(responseData);
+        ToastAndroid.show(JSON.stringify(responseData), ToastAndroid.LONG);
+        this.onSuccess(responseData).done();
       })
       .catch((error) => {
         console.log(error);
-        ToastAndroid.show(String(error).replace('Error: ',''), ToastAndroid.SHORT);
+        ToastAndroid.show(String(error).replace('Error: ',''), ToastAndroid.LONG);
       })
-      .done();
+      .done(() => {
+        this.setState({loading: false});
+      });
   }
 
   gotoRoute(name) {
@@ -93,10 +107,8 @@ class Login extends Component {
   async onSuccess(data) {
     try {
       await AsyncStorage.setItem(key, JSON.stringify(data));
-      ToastAndroid.show('Logged in successfully!', ToastAndroid.SHORT);
-      this.props.navigator.pop();
     } catch (error) {
-      ToastAndroid.show(String(error).replace('Error: ',''), ToastAndroid.SHORT);
+      ToastAndroid.show(String(error).replace('Error: ',''), ToastAndroid.LONG);
     }
   }
 }
