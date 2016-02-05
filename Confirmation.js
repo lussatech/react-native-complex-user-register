@@ -15,12 +15,9 @@ export default class extends Component {
 
   render() {
     return (
-      <View style={styles.container}>
-        <Text style={styles.instructions}>
-          Congratulations... / Unfortunately...
-        </Text>
-        <Text style={styles.instructions}>
-          Your registration is accepted / rejected
+      <View style={{flex:1,flexDirection:'column',justifyContent:'center',alignItems:'center',backgroundColor:'#CDDC39'}}>
+        <Text style={{textAlign:'center'}}>
+          {`Congratulations... / Unfortunately...\n\nYour registration is accepted / rejected`}
         </Text>
       </View>
     );

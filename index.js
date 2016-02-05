@@ -20,34 +20,6 @@ import Waiting from './Waiting';
 
 export {Confirmation, Login, Register, Server, Host, Key, Style, Waiting};
 
-class Home extends Component {
-  constructor(props) {
-    super(props);
-  }
-
-  render() {
-    return (
-      <ScrollView>
-        <View style={styles.container}>
-          <TouchableHighlight style={styles.button} underlayColor={'#2bbbad'} onPress={() => this.gotoRoute('login')}>
-            <Text style={styles.buttonText}>{'Login'}</Text>
-          </TouchableHighlight>
-          <TouchableHighlight style={styles.button} underlayColor={'#2bbbad'} onPress={() => this.gotoRoute('waiting')}>
-            <Text style={styles.buttonText}>{'Waiting Confirmation Page'}</Text>
-          </TouchableHighlight>
-          <TouchableHighlight style={styles.button} underlayColor={'#2bbbad'} onPress={() => this.gotoRoute('confirmation')}>
-            <Text style={styles.buttonText}>{'Confirmation Page'}</Text>
-          </TouchableHighlight>
-        </View>
-      </ScrollView>
-    );
-  }
-
-  gotoRoute(name) {
-    return this.props.navigator.push({name: name});
-  }
-}
-
 export default class extends Component {
   constructor(props) {
     super(props);
@@ -68,9 +40,6 @@ export default class extends Component {
   renderScene(route, navigator) {
     _navigator = navigator;
     switch (route.name) {
-      case 'login':
-        return <Login navigator={navigator} />
-        break;
       case 'register':
         return <Register navigator={navigator} />
         break;
@@ -81,7 +50,7 @@ export default class extends Component {
         return <Confirmation navigator={navigator} />
         break;
       default:
-        return <Home navigator={navigator} />
+        return <Login navigator={navigator} />
     }
   }
 }
@@ -94,37 +63,4 @@ BackAndroid.addEventListener('hardwareBackPress', () => {
   }
   _navigator.pop();
   return true;
-});
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'stretch',
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
-  },
-  buttonText: {
-    fontSize: 18,
-    color: 'white',
-    alignSelf: 'center'
-  },
-  button: {
-    height: 44,
-    backgroundColor: '#26a69a',
-    alignSelf: 'stretch',
-    justifyContent: 'center',
-    marginTop: 10
-  },
-  toolbar: {
-    height: 60,
-    backgroundColor: '#D6D2D2'
-  }
 });

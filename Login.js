@@ -7,16 +7,18 @@ import React, {
   View,
   TextInput,
   TouchableHighlight,
+  TouchableOpacity,
   ToastAndroid,
   AsyncStorage,
-  Navigator
+  Navigator,
+  Image
 } from 'react-native';
 
 import styles from './Style';
 import api, {host, key} from './Server';
 import Register from './Register';
 
-class Login extends Component {
+export default class extends Component {
   constructor(props) {
     super(props);
 
@@ -32,26 +34,30 @@ class Login extends Component {
 
   render() {
     let fields = [
-      {ref: 'email', placeholder: 'Email', keyboardType: 'email-address', secureTextEntry: false},
-      {ref: 'password', placeholder: 'Password', keyboardType: 'default', secureTextEntry: true},
+      {ref: 'email', placeholder: 'Email', keyboardType: 'email-address', secureTextEntry: false, style: [styles.inputText]},
+      {ref: 'password', placeholder: 'Password', keyboardType: 'default', secureTextEntry: true, style: [styles.inputText]},
     ];
 
     return (
       <ScrollView ref={'loginFormC'} {...this.props}>
-        <Text style={styles.title}>LOGIN</Text>
-        <View key={'email'}>
+        <TouchableOpacity activeOpacity={1} style={styles.titleContainer}>
+          <Text style={styles.title}>{'LOGIN'}</Text>
+        </TouchableOpacity>
+        <View key={'email'} style={styles.inputContainer}>
           <TextInput {...fields[0]} onFocus={() => this.onFocus({...fields[0]})} onChangeText={(text) => this.state.data.email = text} />
         </View>
-        <View key={'password'}>
+        <View key={'password'} style={styles.inputContainer}>
           <TextInput {...fields[1]} onFocus={() => this.onFocus({...fields[1]})} onChangeText={(text) => this.state.data.password = text} />
         </View>
         <TouchableHighlight style={this.state.loading ? styles.buttonDisabled : styles.button} underlayColor={'#2bbbad'} onPress={() => this.onSubmit()}>
           <Text style={styles.buttonText}>{this.state.loading ? 'Please Wait . . .' : 'Submit'}</Text>
         </TouchableHighlight>
-        <Text style={styles.orText}>OR</Text>
-        <TouchableHighlight style={styles.button} underlayColor={'#2bbbad'} onPress={() => this.gotoRoute('register')}>
-          <Text style={styles.buttonText}>{'Register as Seller'}</Text>
-        </TouchableHighlight>
+        <View style={{flex:1,flexDirection:'row',alignItems:'flex-start',margin:8}}>
+          <Text style={{fontSize:17}}>{'Doesn\'t have an account? '}</Text>
+          <TouchableOpacity activeOpacity={0.7} onPress={() => this.gotoRoute('register')}>
+            <Text style={{fontSize:17,color:'#E65100'}}>{'Register'}</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     );
   }
@@ -100,10 +106,6 @@ class Login extends Component {
       });
   }
 
-  gotoRoute(name) {
-    return this.props.navigator.push({name: name});
-  }
-
   async onSuccess(data) {
     try {
       await AsyncStorage.setItem(key, JSON.stringify(data));
@@ -111,32 +113,22 @@ class Login extends Component {
       ToastAndroid.show(String(error).replace('Error: ',''), ToastAndroid.LONG);
     }
   }
-}
 
-export default class extends Component {
-  constructor(props) {
-    super(props);
+  goBack() {
+    if (this.props.navigator) {
+      this.props.navigator.pop();
+    }
   }
 
-  render() {
-    return (
-      <Navigator
-        initialRoute={{name:'login'}}
-        renderScene={this.renderScene.bind(this)}
-        configureScene={(route) => {
-          return route.sceneConfig ? route.sceneConfig : Navigator.SceneConfigs.HorizontalSwipeJump;
-        }}
-      />
-    );
+  gotoRoute(name) {
+    if (this.props.navigator && this.props.navigator.getCurrentRoutes()[this.props.navigator.getCurrentRoutes().length-1].name != name) {
+      this.props.navigator.push({name: name});
+    }
   }
 
-  renderScene(route, navigator) {
-    switch (route.name) {
-      case 'register':
-        return <Register navigator={navigator} />
-        break;
-      default:
-        return <Login navigator={navigator} />
+  replaceRoute(name) {
+    if (this.props.navigator && this.props.navigator.getCurrentRoutes()[this.props.navigator.getCurrentRoutes().length-1].name != name) {
+      this.props.navigator.replace({name: name});
     }
   }
 }
