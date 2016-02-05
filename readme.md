@@ -1,52 +1,66 @@
-## Requirements:
+### Installation
+    npm i react-native-complex-user-register
 
-    lussatech-cli
+### Generate Files
+Before generate library files to your react-native-project, make sure that `lussatech-cli` is installed globally in your machine, otherwise use this command to install it:
 
------
-## Content:
-* [Step 1: Get the code](#step1)
-* [Step 2: Generate files](#step2)
-* [Step 3: Customize files](#step3)
+    npm i lussatech-cli -g
 
------
-<a name="step1"></a>
-### Step 1: Get the code
-
-    npm install react-native-complex-user-register
-
------
-<a name="step2"></a>
-### Step 2: Generate files
+If `lussatech-cli` have been installed, change directory to your react-native-project and run this command:
 
     lussatech generate react-native-complex-user-register
 
------
-<a name="step3"></a>
-### Step 3: Customize files
+then the library files will be added automatically inside your react-native-project, e.g.
 
     react-native-project
-    ...
+    |_ ...
     |_ lib
       |_ react-native-complex-user-register
-        |_ Example
         |_ ...
-        |_ Register.js
+        |_ index.js
         |_ ...
-        |_ Server.js
-    ...
 
-#### Setting up your API end-point at `Server.js`
+### Usage
+```javascript
+...
+import ComplexAuth, {   // sample app
+/* available components */
+  Login,                // sample login view
+  Register,             // sample register view
+  Waiting,              // sample waiting confirmation view
+  Confirmation,         // sample confirmation view
+/* available constants  */  
+  Server,               // sample api end-point
+  Host,                 // sample host for api end-point
+  Key,                  // sample key for asynstorage
+  Style                 // sample styles
+} from './lib/react-native-complex-user-register';
+
+class Name extends Component {
+  render() {
+    return (
+      <ComplexAuth />      // sample calling component
+    );
+  }
+}
+...
+```
+
+###### Manage API end-point
+To manage api end-point, update `Server.js` based on your api end-point, e.g.
+
 ```javascript
 # lib/react-native-complex-user-register/Server.js
 
-export const  key = '@lussatech:session';       // key for asynstorage
-export const host = 'http://example.com';
+...
+export const  key = '@lussatech:session'; // key for asynstorage
+export const host = 'http://example.com'; // host for api end-point
 export default {
   auth: {
-    login: function (data) {
-      let url = host + '/auth/login',           // API URI for login
-          opt = {
-            method: 'post',
+    register: function (data) {
+      let url = `${host}/auth/register`,  // api url for register
+          opt = {                         // optional second argument
+            method: 'post',               //  to customize the HTTP request
             headers: {
               'Accept': 'application/json',
               'Content-Type': 'application/json'
@@ -57,24 +71,27 @@ export default {
       return fetch(url, opt);
     },
     ...
-  }
+  },
   ...
 };
+...
 ```
-#### Customize your `Login` and `Register` authentication form, e.g.
+
+#### Customize views
+To customize views, update `Confirmation.js`, `Login.js`, `Register.js` and `Waiting.js` based on your need, e.g.
+
 ```javascript
-# lib/react-native-complex-user-register/Login.js
+# lib/react-native-complex-user-register/Register.js
 
 ...
-import api, {host,key} from './Server';
-
-class Login extends Component {
+export default class extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
       data: {
-        email: undefined,
+           email: undefined,
+        password: undefined,
         ...
       },
       ...
@@ -82,77 +99,70 @@ class Login extends Component {
   }
 
   render() {
+    let fields = [
+      {ref: 'email', placeholder: 'Email', keyboardType: 'email-address', secureTextEntry: false, style: [styles.inputText]},
+      {ref: 'password', placeholder: 'Password', keyboardType: 'default', secureTextEntry: true, style: [styles.inputText]},
+      ...
+    ];
+
     return(
-      <ScrollView ref={'loginForm'}>
-        <Text style={style.title}>LOGIN</Text>
+      ...
+        <View key={'messages'}>
+          {this.renderMessages()}
+        </View>
         <View key={'email'}>
-          <TextInput
-            ref={'email'}
-            placeholder={'Email'}
-            ...
-            onChangeText={(text) => this.state.data.email = text}
-            value={this.state.data.email} />
+          <TextInput {...fields[0]} onChangeText={(text) => this.state.data.email = text} />
+        </View>
+        <View key={'password'}>
+          <TextInput {...fields[1]} onChangeText={(text) => this.state.data.password = text} />
         </View>
         ...
-        <TouchableHighlight style={style.button} onPress={this.onSubmit.bind(this)}>
-          <Text style={style.buttonText}>{this.state.loading ? 'Please Wait . . .' : 'Submit'}</Text>
+        <TouchableHighlight onPress={() => this.onSubmit()}>
+          <Text>{'Submit'}</Text>
         </TouchableHighlight>
-      </ScrollView>
+      ...
     );
+  }
+
+  renderMessages() {
+    if (this.state.messages.length > 0) {
+      let messages = this.state.messages.map((val, key) => {
+        if (val.message) return <Text style={styles.message} key={key}>{val.message}</Text>;
+      });
+
+      return messages;
+    }
   }
 
   onSubmit() {
     ...
-    api.auth.login(this.state.data)                           // call API URI for login
+    /* check for empty value (validation) */
+    let keys = Object.keys(this.state.data).map((val, key) => {
+      if ([null, undefined, 'null', 'undefined', ''].indexOf(this.state.data[val]) > -1) return val;
+    });
+
+    this.setState({messages: []});
+
+    argument.map((val, key) => {
+      if (keys.indexOf(val.ref) > -1) this.setState({messages: this.state.messages.concat(val)});
+    });
+
+    if (this.state.messages.length > 0) return null;
+
+    api.auth.register(this.state.data)                        // call api url for register
       .then((response) => {
-        ...
+        if (!response.ok) throw Error(response.statusText || response._bodyText);
+        return response.json();
       })
       .then((responseData) => {
-        this.onSuccess(responseData);
+        ...
       })
       .catch((error) => {
         ...
       })
-      .done();
-  }
-
-  async onSuccess(data) {
-    try {
-      await AsyncStorage.setItem(key, JSON.stringify(data));  // save response data on asynstorage as session
-      ...
-    } catch (error) {
-      ...
-    }
-  }
-}
-...
-```
-
-#### Import `Login.js`, `Register.js`, `Waiting.js` and `Confirmation.js` to your _react-native-project_, e.g.
-```javascript
-# index.android.js
-
-...
-import Login from './lib/react-native-complex-user-register/Login';
-
-class Name extends Component {
-  render() {
-    return <Login />;
-  }
-}
-...
-```
-
-#### Or import `Example` to your _react-native-project_ to see an example, e.g.
-```javascript
-# index.android.js
-
-...
-import Example from './lib/react-native-complex-user-register/Example';
-
-class Name extends Component {
-  render() {
-    return <Example />;
+      .done(() => {
+        ...
+      });
   }
 }
 ...
