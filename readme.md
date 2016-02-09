@@ -1,3 +1,5 @@
+![react-native-complex-user-register](https://raw.githubusercontent.com/lussatech/react-native-complex-user-register/master/preview.gif)
+
 ### Installation
     npm i react-native-complex-user-register
 
